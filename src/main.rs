@@ -9,6 +9,7 @@ use std::fs::File;
 use clap::{App, Arg};
 use chrono::prelude::*;
 use std::time;
+use std::error::Error;
 
 
 fn until_time(from_date: &DateTime<Local>) -> time::Duration {
@@ -26,8 +27,15 @@ fn next_run_time(template: &DateTime<Local>) -> DateTime<Local> {
     }
 }
 
+fn template_from_str(input: &str) -> Result<DateTime<Local>, chrono::ParseError> {
+    let mut full_str = String::with_capacity(16);
+    full_str.push_str("20170202 ");
+    full_str.push_str(input);
+    Local.datetime_from_str(&full_str, "%Y%m%d %I:%M%P")
+}
+
 fn main() {
-    let _matches = App::new(env!("CARGO_PKG_NAME"))
+    let matches = App::new(env!("CARGO_PKG_NAME"))
         .version(env!("CARGO_PKG_VERSION"))
         .about(env!("CARGO_PKG_DESCRIPTION"))
         .author(env!("CARGO_PKG_AUTHORS"))
@@ -40,12 +48,18 @@ fn main() {
             .multiple(false)
             .default_value("0")
             )
+        .arg(Arg::with_name("time")
+            .value_name("HH:MMAP")
+            .help("The hour and minute to take the picture during the day")
+            .required(true)
+            )
         .get_matches();
     
-    let template = Local.ymd(2017, 1, 1).and_hms(12,0,0);
-    // let next_run = next_run_time(&template);
-    // println!("{:?} => {:?}", template, next_run);
-    // let sleep_duration = until_time(&next_run);
+    let template = template_from_str(matches.value_of("time").unwrap()).unwrap();
+    let next_run = next_run_time(&template);
+    let sleep_duration = until_time(&next_run);
+    println!("{:?} => {:?} ({:?})", template, next_run, sleep_duration);
+    
     // let expressive_duration = chrono::Duration::from_std(sleep_duration);
     // println!("{:?}", expressive_duration.unwrap().num_hours());
     // let cam = camera_capture::create(2).unwrap();
