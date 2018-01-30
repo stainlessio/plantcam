@@ -1,0 +1,12 @@
+[package]
+name = "plantcamsvc"
+version = "0.1.0"
+authors = ["Russell Hay <russell.hay@gmail.com>"]
+
+[dependencies]
+camera_capture = "0.5.0"
+clap = "^2"
+futures = "^0.1"
+futures-cpupool = "^0.1"
+tokio-timer = "^0.1"
+chrono = "^0.4"
